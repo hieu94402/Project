@@ -12,14 +12,13 @@ T_max = 170 # max temperature, degree
 lambda_0 = 200 # initial periodicity, μm
 alpha = 14300 # temp profile parameter formula 0
 
-# proc # processing vector for plotting, defined later
-# preset plot
-plt.figure(figsize=(8,5))
-plt.grid(True)
-plt.xlabel("z coordinate (m)")
-mpl.rcParams['lines.marker'] = 'o'
-mpl.rcParams['lines.markersize'] = 1
-mpl.rcParams['lines.linestyle'] = '-'
+# # preset plot
+# plt.figure(figsize=(8,5))
+# plt.grid(True)
+# plt.xlabel("z coordinate (m)")
+# mpl.rcParams['lines.marker'] = 'o'
+# mpl.rcParams['lines.markersize'] = 1
+# mpl.rcParams['lines.linestyle'] = '-'
 
 # case0:
 L = 0.2
@@ -43,9 +42,12 @@ def _tau(z): # characteristic time (log)
 def _log_tau(z):
     return np.log(_tau(z))
 # # modify here
-_proc_vec = np.vectorize( _v )
-_proc_values = _proc_vec(z)
-# plt.plot(z, _proc_values, label="case0: parabola decay", color='C0')
+y0 = np.vectorize( _v )
+# y1_values = y1(z)
+# plt.plot(z, y1_values, label="case0: parabola decay", color='C0')
+cols = []
+cols.append(z)
+cols.append(y0(z))
 
 # case1:
 L = 0.3
@@ -58,29 +60,25 @@ def _T(z): # temperature profile
         T_max - alpha * (z-L_T_max) * (z-L_T_max),
         T_max * np.exp(-exp_diff* (z-L_T_max)**2))
     return y_piecewise
-# # modify here
-_proc_vec = np.vectorize( _v )
-_proc_values = _proc_vec(z)
-# plt.plot(z, _proc_values, label="case1: exponential-like decay", color='C1')
+# modify here
+y1 = np.vectorize( _v )
+cols.append(z)
+cols.append(y1(z))
 
-# # case2:
-# exp_diff = 35
-# # modify here
-# _proc_vec = np.vectorize( _v )
-# _proc_values = _proc_vec(z)
-# plt.plot(z, _proc_values, label="case2: exponential-like decay,35", color='C2')
+# case2:
+exp_diff = 35
+y2 = np.vectorize( _v )
+cols.append(y2(z))
 
-# # case3:
-# exp_diff = 100
-# # modify here
-# _proc_vec = np.vectorize( _v )
-# _proc_values = _proc_vec(z)
-# plt.plot(z, _proc_values, label="case3: exponential-like decay,100", color='C3')
+# case3:
+exp_diff = 100
+y3 = np.vectorize( _v )
+cols.append(y3(z))
 
 # plt.title("tau in log scale")
 # plt.legend()
 # plt.show() # show figure
 
 # save to .csv file
-data = np.column_stack((z, _proc_vec(z)))
-np.savetxt('C:\\Users\\hieu9\\OneDrive\\Máy tính\\One\\[Project] Shape preservation and stress relaxation\\python calculation\\data-extract\\results-case-1-v.csv', data, delimiter=',', header='x,y', comments='')
+data = np.column_stack(cols)
+np.savetxt('C:\\Users\\hieu9\\OneDrive\\Máy tính\\One\\[Project] Shape preservation and stress relaxation\\python calculation\\data\\results-v.csv', data, delimiter=',')

@@ -44,11 +44,40 @@ lambda_z = @(a) lambda_0 * sqrt(v_f ./ v(a));
 tau = @(a) eta(a) * 1e-6 .* lambda_z(a) ./ (3.14 * gamma(a));
 % create array
 y1 = arrayfun(v, a);
+
+% Case 2:
+exp_diff = 35; % re-determine exponential pattern
+T = @(a) (T_max - alpha * (a - L_T_max).^2) .* (a <= L_T_max) + ...
+         (T_max .* exp(-exp_diff .* (a - L_T_max).^2)) .* (a > L_T_max);     
+eta = @(a) exp(22493 ./ (T(a) + 273.15) - 35.287);
+log_eta = @(a) log(eta(a));
+v_denom = integral(@(g) 1 ./ eta(g), 0, L);
+v = @(a) exp(log(v_f) + integral(@(g) 1 ./ eta(g), 0, a) / v_denom * log(v_d / v_f));
+gamma = @(a) 49.2 - 0.06 * (T(a) - 20);
+lambda_z = @(a) lambda_0 * sqrt(v_f ./ v(a));
+tau = @(a) eta(a) * 1e-6 .* lambda_z(a) ./ (3.14 * gamma(a));
+% create array
+y2 = arrayfun(v, a);
 % Combine z and v(z) into a matrix: first column = z, second column = v(z)
 data = [z(:), y0(:), a(:), y1(:)];
 
+% Case 3:
+exp_diff = 100; % re-determine exponential pattern
+T = @(a) (T_max - alpha * (a - L_T_max).^2) .* (a <= L_T_max) + ...
+         (T_max .* exp(-exp_diff .* (a - L_T_max).^2)) .* (a > L_T_max);     
+eta = @(a) exp(22493 ./ (T(a) + 273.15) - 35.287);
+log_eta = @(a) log(eta(a));
+v_denom = integral(@(g) 1 ./ eta(g), 0, L);
+v = @(a) exp(log(v_f) + integral(@(g) 1 ./ eta(g), 0, a) / v_denom * log(v_d / v_f));
+gamma = @(a) 49.2 - 0.06 * (T(a) - 20);
+lambda_z = @(a) lambda_0 * sqrt(v_f ./ v(a));
+tau = @(a) eta(a) * 1e-6 .* lambda_z(a) ./ (3.14 * gamma(a));
+% create array
+y3 = arrayfun(v, a);
+data = [z(:), y0(:), a(:), y1(:), y2(:), y3(:)];
+
 % Define the directory and file name
-save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Shape preservation and stress relaxation\matlab-calculation\data";     
-save_file = fullfile(save_dir, "results-v-2-cases.csv");
+save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Shape preservation and stress relaxation\matlab calculation\data";     
+save_file = fullfile(save_dir, "results-v-4-cases.csv");
 writematrix(data, save_file); % Write to CSV
 fprintf('Saved to:\n%s\n', save_file); % Optional: print location

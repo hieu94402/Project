@@ -2,7 +2,8 @@ import numpy as np
 from scipy.integrate import quad
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-
+import time
+start = time.time()
 # define constant
 v_f = 1/60 # feeding speed, min/s
 v_d = 100/60 # drawing speed, min/s
@@ -12,19 +13,9 @@ L_T_max = 0.1 # position at which temp peaks
 lambda_0 = 200 # initial periodicity, μm
 alpha = 14300 # temp profile parameter formula 0
 
-# proc # processing vector for plotting, defined later
-# preset plot
-plt.figure(figsize=(8,5))
-plt.grid(True)
-plt.xlabel("max temperature (C degree)")
-mpl.rcParams['lines.marker'] = 'o'
-mpl.rcParams['lines.markersize'] = 1
-mpl.rcParams['lines.linestyle'] = '-'
-
-
 # case0:
 L = 0.2
-T_max = np.linspace(150, 200, 10) # define max temperature range
+T_max = np.linspace(150, 200, 30) # define max temperature range
 def _T(z, T_max): # temperature profile
     return T_max - alpha * (z-L_T_max) * (z-L_T_max)
 def _eta(z, T_max): # viscosity profile
@@ -43,13 +34,15 @@ def _fsh(T_max): #shape factor
     _fsh_func, _ = quad(lambda g: -1.0 / (_tau(g, T_max) * _v(g, T_max)), 0, L)
     return np.exp(_fsh_func)
 # modify here
-_proc0_vec = np.vectorize( _fsh )
+y0 = np.vectorize( _fsh )
 # _proc_values = _proc_vec( T_max )
 # plt.plot(T_max, _proc_values, label="case0: parabola-like decay", color='C0')
+cols = []
+cols.append(T_max)
+cols.append(y0(T_max))
 
 # case1:
 L = 0.3 # re-define furnace length
-T_max = np.linspace(150, 200, 10) # re-define max temperature range
 exp_diff = 46
 def _T(z, T_max): 
     y_piecewise = np.where(
@@ -57,24 +50,25 @@ def _T(z, T_max):
         T_max - alpha * (z-L_T_max) * (z-L_T_max),
         T_max * np.exp(- exp_diff * (z-L_T_max)**2))
     return y_piecewise
-_proc1_vec = np.vectorize( _fsh )
-# _proc_values = _proc_vec( T_max )
-# plt.plot(T_max, _proc_values, label="case1: exp para = 46", color='C1')
+y1 = np.vectorize( _fsh )
+cols.append(y1(T_max))
 
 # case2:
 exp_diff = 35
-_proc2_vec = np.vectorize( _fsh )
-# _proc_values = _proc_vec( T_max )
-# plt.plot(T_max, _proc_values, label="case2: exp para = 35", color='C2')
+y2 = np.vectorize( _fsh )
+cols.append(y2(T_max))
 
 # case3:
 exp_diff = 100
-_proc3_vec = np.vectorize( _fsh )
-# _proc_values = _proc_vec( T_max )
-# plt.plot(T_max, _proc_values, label="case3: exp para = 100", color='C3')
+y3 =np.vectorize( _fsh )
+cols.append(y3(T_max))
 
 # plt.legend()
 # plt.show() # show figure
 
-data = np.column_stack((T_max, _proc0_vec(T_max), _proc1_vec(T_max), _proc2_vec(T_max), _proc3_vec(T_max)))
-np.savetxt('C:\\Users\\hieu9\\OneDrive\\Máy tính\\One\\[Project] Shape preservation and stress relaxation\\python calculation\\data-extract\\results-fsh.csv', data, delimiter=',',)
+data = np.column_stack(cols)
+np.savetxt('C:\\Users\\hieu9\\OneDrive\\Máy tính\\One\\[Project] Shape preservation and stress relaxation\\python calculation\\data\\results-fsh.csv', data, delimiter=',',)
+
+end = time.time()
+runtime = end - start
+# print(f"Runtime: {runtime:.3f} s")
