@@ -26,7 +26,7 @@ lambda_z = @(z) lambda_0 * sqrt(v_f ./ v(z));
 tau = @(z) eta(z) * 1e-6 .* lambda_z(z) ./ (3.14 * gamma(z));
 log_tau = @(z) log(tau(z));
 % create array
-y0 = arrayfun(v, z);
+y0 = arrayfun(T, z);
 
 % Case 1:
 L = 0.3; % re-determine L
@@ -43,7 +43,7 @@ gamma = @(a) 49.2 - 0.06 * (T(a) - 20);
 lambda_z = @(a) lambda_0 * sqrt(v_f ./ v(a));
 tau = @(a) eta(a) * 1e-6 .* lambda_z(a) ./ (3.14 * gamma(a));
 % create array
-y1 = arrayfun(v, a);
+y1 = arrayfun(T, a);
 
 % Case 2:
 exp_diff = 35; % re-determine exponential pattern
@@ -57,9 +57,7 @@ gamma = @(a) 49.2 - 0.06 * (T(a) - 20);
 lambda_z = @(a) lambda_0 * sqrt(v_f ./ v(a));
 tau = @(a) eta(a) * 1e-6 .* lambda_z(a) ./ (3.14 * gamma(a));
 % create array
-y2 = arrayfun(v, a);
-% Combine z and v(z) into a matrix: first column = z, second column = v(z)
-data = [z(:), y0(:), a(:), y1(:)];
+y2 = arrayfun(T, a);
 
 % Case 3:
 exp_diff = 100; % re-determine exponential pattern
@@ -73,11 +71,11 @@ gamma = @(a) 49.2 - 0.06 * (T(a) - 20);
 lambda_z = @(a) lambda_0 * sqrt(v_f ./ v(a));
 tau = @(a) eta(a) * 1e-6 .* lambda_z(a) ./ (3.14 * gamma(a));
 % create array
-y3 = arrayfun(v, a);
+y3 = arrayfun(T, a);
 data = [z(:), y0(:), a(:), y1(:), y2(:), y3(:)];
 
 % Define the directory and file name
 save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Shape preservation and stress relaxation\matlab calculation\data";     
-save_file = fullfile(save_dir, "results-v-4-cases.csv");
+save_file = fullfile(save_dir, "results-T-4-cases.csv");
 writematrix(data, save_file); % Write to CSV
 fprintf('Saved to:\n%s\n', save_file); % Optional: print location

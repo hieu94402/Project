@@ -42,7 +42,7 @@ def _tau(z): # characteristic time (log)
 def _log_tau(z):
     return np.log(_tau(z))
 # # modify here
-y0 = np.vectorize( _v )
+y0 = np.vectorize( _T )
 # y1_values = y1(z)
 # plt.plot(z, y1_values, label="case0: parabola decay", color='C0')
 cols = []
@@ -61,24 +61,24 @@ def _T(z): # temperature profile
         T_max * np.exp(-exp_diff* (z-L_T_max)**2))
     return y_piecewise
 # modify here
-y1 = np.vectorize( _v )
+y1 = np.vectorize( _T )
 cols.append(z)
 cols.append(y1(z))
 
 # case2:
 exp_diff = 35
-y2 = np.vectorize( _v )
+y2 = np.vectorize( _T )
 cols.append(y2(z))
 
 # case3:
 exp_diff = 100
-y3 = np.vectorize( _v )
+y3 = np.vectorize( _T )
 cols.append(y3(z))
 
-# plt.title("tau in log scale")
+# plt.title("")
 # plt.legend()
 # plt.show() # show figure
 
 # save to .csv file
 data = np.column_stack(cols)
-np.savetxt('C:\\Users\\hieu9\\OneDrive\\Máy tính\\One\\[Project] Shape preservation and stress relaxation\\python calculation\\data\\results-v.csv', data, delimiter=',')
+np.savetxt('C:\\Users\\hieu9\\OneDrive\\Máy tính\\One\\[Project] Shape preservation and stress relaxation\\python calculation\\data\\results-T.csv', data, delimiter=',')
