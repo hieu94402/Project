@@ -1,4 +1,3 @@
-
 tic;
 % Define constants
 v_f = 1/60;              % feeding speed, mm/s
@@ -33,10 +32,10 @@ y0 = arrayfun(fsh, Tm);
 
 % Case 1:
 L = 0.3; % re-determine L
-exp_diff = 46; % re-determine exponential pattern
+chi = 46; % re-determine exponential pattern
 % 1.1.Temperature profile
 T = @(z, Tm) (Tm - alpha * (z - L_T_max).^2) .* (z <= L_T_max) + ...
-         (Tm .* exp(-exp_diff .* (z - L_T_max).^2)) .* (z > L_T_max);     
+         (Tm .* exp(-chi .* (z - L_T_max).^2)) .* (z > L_T_max);     
 eta = @(z, Tm) exp(22493 ./ (T(z, Tm) + 273.15) - 35.287);
 v_scalar = @(zz, Tm) exp(log(v_f) + integral(@(g) 1 ./ eta(g, Tm), 0, zz) ./ ...
     integral(@(g) 1./ eta(g, Tm), 0, L) .* log(v_d / v_f));
@@ -49,9 +48,9 @@ fsh = @(Tm) exp(integral(@(g) -1 ./ (tau(g, Tm) .* v(g, Tm)), 0, L));
 y1 = arrayfun(fsh, Tm);
 
 % Case 2:
-exp_diff = 35; % re-determine exponential pattern
+chi = 35; % re-determine exponential pattern
 T = @(z, Tm) (Tm - alpha * (z - L_T_max).^2) .* (z <= L_T_max) + ...
-         (Tm .* exp(-exp_diff .* (z - L_T_max).^2)) .* (z > L_T_max);     
+         (Tm .* exp(-chi .* (z - L_T_max).^2)) .* (z > L_T_max);     
 eta = @(z, Tm) exp(22493 ./ (T(z, Tm) + 273.15) - 35.287);
 v_scalar = @(zz, Tm) exp(log(v_f) + integral(@(g) 1 ./ eta(g, Tm), 0, zz) ./ ...
     integral(@(g) 1./ eta(g, Tm), 0, L) .* log(v_d / v_f));
@@ -63,9 +62,9 @@ fsh = @(Tm) exp(integral(@(g) -1 ./ (tau(g, Tm) .* v(g, Tm)), 0, L));
 y2 = arrayfun(fsh, Tm);
 
 % Case 3:
-exp_diff = 100; % re-determine exponential pattern
+chi = 100; % re-determine exponential pattern
 T = @(z, Tm) (Tm - alpha * (z - L_T_max).^2) .* (z <= L_T_max) + ...
-         (Tm .* exp(-exp_diff .* (z - L_T_max).^2)) .* (z > L_T_max);     
+         (Tm .* exp(-chi .* (z - L_T_max).^2)) .* (z > L_T_max);     
 eta = @(z, Tm) exp(22493 ./ (T(z, Tm) + 273.15) - 35.287);
 v_scalar = @(zz, Tm) exp(log(v_f) + integral(@(g) 1 ./ eta(g, Tm), 0, zz) ./ ...
     integral(@(g) 1./ eta(g, Tm), 0, L) .* log(v_d / v_f));
@@ -76,12 +75,19 @@ tau = @(z, Tm) eta(z, Tm) * 1e-6 .* lambda_z(z, Tm) ./ (3.14 .* gamma(z, Tm));
 fsh = @(Tm) exp(integral(@(g) -1 ./ (tau(g, Tm) .* v(g, Tm)), 0, L));
 y3 = arrayfun(fsh, Tm);
 
-data = [Tm(:), y0(:), y1(:), y2(:), y3(:)];
-
 % Define the directory and file name
-save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Shape preservation and stress relaxation\matlab calculation\data";     
-save_file = fullfile(save_dir, "results-fsh-4-cases.csv");
-writematrix(data, save_file); % Write to CSV
+save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Shape preservation and stress relaxation\matlab calculation\data";
+tstr = datestr(now, 'yyyymmdd_HHMMSS');
+%%%
+% Base name, modify if needed
+basename = 'results-fsh-4-cases';
+%%%
+filename = sprintf('%s_%s.csv', basename, tstr);
+save_file = fullfile(save_dir, filename);
+% Generate table with header row
+T = table(Tm(:), y0(:), y1(:), y2(:), y3(:), ...
+    'VariableNames', {'Tm','quadratic','chi = 46','chi = 35','chi = 100'});
+writetable(T, save_file);
 fprintf('Saved to:\n%s\n', save_file); % Optional: print location
 elapsed = toc;
 fprintf('Runtime: %.6f s\n', elapsed);
