@@ -1,91 +1,96 @@
 % Define constants
 v_f = 1/60;              % feeding speed, mm/s
 v_d = 100/60;            % drawing speed, mm/s
-% L = furnace length, m (defined later)
-L_T_max = 0.1;           % position at which temp peaks
-T_max = 170;             % max temperature, degree C
+Tm = 170;             % max temperature, degree C
 lambda_0 = 200;          % initial periodicity, μm
-alpha = 14300;           % temp profile parameter for case 0
+% L_0 = coordinate at top of furnace, m (defined later)
+% L_n = coordinate at bottom of furnace
+% Lm = position at which temp peaks
 
-% Case 0:
-L = 0.2; % determine L
-z = linspace(0, L, 1000); % Define horizontal coordinate (furnace length, 0 at the top)
-% 0.1.Temperature profile
-T = @(z) T_max - alpha * (z - L_T_max).^2;
-% 0.2.Viscosity profile
-eta = @(z) exp(22493 ./ (T(z) + 273.15) - 35.287);
-log_eta = @(z) log(eta(z));
-% 0.3.Velocity profile
-v_denom = integral(@(g) 1 ./ eta(g), 0, L);
-v = @(z) exp(log(v_f) + integral(@(g) 1 ./ eta(g), 0, z) / v_denom * log(v_d / v_f));
-% 0.4.Surface tension profile
-gamma = @(z) 49.2 - 0.06 * (T(z) - 20);
-% 0.5.Periodicity profile (in micrometers)s
-lambda_z = @(z) lambda_0 * sqrt(v_f ./ v(z));
-% 0.6.Characteristic time (log)
-tau = @(z) eta(z) * 1e-6 .* lambda_z(z) ./ (3.14 * gamma(z));
-log_tau = @(z) log(tau(z));
-% create array, to add to file data, add z(:), y0(:)
-y0 = arrayfun(T, z);
+% set conditions
+L_0 = -0.1;
+L_n = 0.1;
+z = linspace(L_0, L_n, 1000);
+Lm = 0;
+alpha = 14300;
+% Case 00: length0.2, p-left-right0.1
+T = @(x) Tm - alpha * (x).^2;
+profile = building_phase(T, L_0, L_n);
+y00 = profile.T(z);
+x00 = z;
 
-% Case 1:
-L = 0.6; % re-determine L
-a = linspace(0, L, 1000); % re-define
-chi = 7; % determine exponential pattern
-% 1.1. Re-define temperature profile
-T = @(a) (T_max - alpha * (a - L_T_max).^2) .* (a <= L_T_max) + ...
-         (T_max .* exp(-chi .* (a - L_T_max).^2)) .* (a > L_T_max);     
-eta = @(a) exp(22493 ./ (T(a) + 273.15) - 35.287);
-log_eta = @(a) log(eta(a));
-v_denom = integral(@(g) 1 ./ eta(g), 0, L);
-v = @(a) exp(log(v_f) + integral(@(g) 1 ./ eta(g), 0, a) / v_denom * log(v_d / v_f));
-gamma = @(a) 49.2 - 0.06 * (T(a) - 20);
-lambda_z = @(a) lambda_0 * sqrt(v_f ./ v(a));
-tau = @(a) eta(a) * 1e-6 .* lambda_z(a) ./ (3.14 * gamma(a));
-% create array
-y1 = arrayfun(T, a);
+% set conditions
+L_0 = -0.1;
+L_n = 0.5;
+z = linspace(L_0, L_n, 1000);
+Lm = 0;
+alpha = 14300;
+chi = 7; 
+% Case 06: length0.6, p-left0.1, e-right(7)
+T = @(x) (Tm - alpha .* (x).^2) .* (x <= Lm) + ...
+    (Tm .* exp(-chi .* (x).^2)) .* (x > Lm);
+profile = building_phase(T, L_0, L_n);
+y06 = profile.T(z);
+x06 = z;
 
-% Case 2:
-chi = 2; % re-determine exponential pattern
-T = @(a) (T_max - alpha * (a - L_T_max).^2) .* (a <= L_T_max) + ...
-         (T_max .* exp(-chi .* (a - L_T_max).^2)) .* (a > L_T_max);     
-eta = @(a) exp(22493 ./ (T(a) + 273.15) - 35.287);
-log_eta = @(a) log(eta(a));
-v_denom = integral(@(g) 1 ./ eta(g), 0, L);
-v = @(a) exp(log(v_f) + integral(@(g) 1 ./ eta(g), 0, a) / v_denom * log(v_d / v_f));
-gamma = @(a) 49.2 - 0.06 * (T(a) - 20);
-lambda_z = @(a) lambda_0 * sqrt(v_f ./ v(a));
-tau = @(a) eta(a) * 1e-6 .* lambda_z(a) ./ (3.14 * gamma(a));
-% create array
-y2 = arrayfun(T, a);
+% set conditions
+L_0 = -0.5;
+L_n = 0.1;
+z = linspace(L_0, L_n, 1000);
+Lm = 0;
+alpha = 14300;
+chi = 7; 
+% Case 06i: length0.6, p-right0.1, e-left(7)
+T = @(x) (Tm - alpha .* (x).^2) .* (x > Lm) + ...
+    (Tm .* exp(-chi .* (x).^2)) .* (x <= Lm);
+profile = building_phase(T, L_0, L_n);
+y06i = profile.T(z);
+x06i = z;
 
-% Case 3:
-chi = 15; % re-determine exponential pattern
-T = @(a) (T_max - alpha * (a - L_T_max).^2) .* (a <= L_T_max) + ...
-         (T_max .* exp(-chi .* (a - L_T_max).^2)) .* (a > L_T_max);     
-eta = @(a) exp(22493 ./ (T(a) + 273.15) - 35.287);
-log_eta = @(a) log(eta(a));
-v_denom = integral(@(g) 1 ./ eta(g), 0, L);
-v = @(a) exp(log(v_f) + integral(@(g) 1 ./ eta(g), 0, a) / v_denom * log(v_d / v_f));
-gamma = @(a) 49.2 - 0.06 * (T(a) - 20);
-lambda_z = @(a) lambda_0 * sqrt(v_f ./ v(a));
-tau = @(a) eta(a) * 1e-6 .* lambda_z(a) ./ (3.14 * gamma(a));
-% create array
-y3 = arrayfun(T, a);
+% % set conditions 
+% L_n = 0.3;
+% z = linspace(L_0, L_n, 1000);
+% chi = 20;
+% % Case 07: length0.6, p-left0.1, e-right(20)
+% T = @(x) (Tm - alpha .* (x).^2) .* (x <= Lm) + ...
+%     (Tm .* exp(-chi .* (x).^2)) .* (x > Lm);
+% profile = building_phase(T, L_0, L_n);
+% y07 = profile.T(z);
+% x07 = z;
+
+% set conditions
+L_0 = -0.5;
+L_n = 0.5;
+z = linspace(L_0, L_n, 1000);
+chi = 7;
+% Case 08: e-left-right0.5
+T = @(x) Tm .* exp(-chi .* (x).^2);
+profile = building_phase (T, L_0, L_n);
+y08 = profile.T(z);
+x08 = z;
 
 % Define the directory and file name
-save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Shape preservation and stress relaxation\matlab calculation\data";
+save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Shape preservation and stress relaxation\matlab calculation\data\excel";
 tstr = datestr(now, 'yyyymmdd_HHMMSS');
-%%%
 % Base name, modify if needed
-basename = 'results-T-4-cases';
-%%%
+basename = 'results-T';
 filename = sprintf('%s_%s.csv', basename, tstr);
 save_file = fullfile(save_dir, filename);
-% Generate table with header row
-data = [z(:), y0(:), a(:), y1(:), y2(:), y3(:)];
+% select data
+data = [x06(:), y06(:), x06i(:), y06i(:), x08(:), y08(:)];
 fid = fopen(save_file,'w');
-fprintf(fid, 'L = 0.2/0.6 , , , chi = 7, 2, 15\n');
+% insert a row at front
+% fprintf(fid, 'L = 0.2/0.6 , , chi = 7, 2, 15\n');
 fclose(fid);
 writematrix(data, save_file, 'WriteMode','append');
 fprintf('Saved to:\n%s\n', save_file); % Optional: print location
+function S = building_phase(T, L_0, L_n)
+    S.T = T;
+    S.eta = @(x) exp(22493 ./ (S.T(x) + 273.15) - 35.287);
+    S.log_eta = @(x) log(S.eta(x));
+    v_denom = integral(@(g) 1 ./ S.eta(g), L_0, L_n);
+    S.v = @(x) exp(log(v_f) + integral(@(g) 1 ./ S.eta(g), L_0, x) / v_denom * log(v_d / v_f));
+    S.gamma = @(x) 49.2 - 0.06 * (S.T(x) - 20);
+    S.lambda_z = @(x) lambda_0 * sqrt(v_f ./ S.v(x));
+    S.tau = @(x) S.eta(x) * 1e-6 .* S.lambda_z(x) ./ (3.14 * S.gamma(x));
+end
