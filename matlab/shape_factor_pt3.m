@@ -78,7 +78,7 @@ fsh = @(lg_chi) exp(integral(@(g) -1 ./ (tau(g, lg_chi) .* v(g, lg_chi)), 0, L))
 y3 = arrayfun(fsh, lg_chi);
 
 % Define the directory and file name
-save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Shape preservation and stress relaxation\matlab calculation\data";
+save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Preservation & residual stress\matlab calculation\data\excel";
 tstr = datestr(now, 'yyyymmdd_HHMMSS');
 %%%
 % Base name, modify if needed

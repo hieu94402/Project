@@ -37,19 +37,19 @@ for i = 1:numel(Tm)
 end
 
 % set conditions
-L_0 = -0.5;
-L_n = 0.5;
+L_0 = -0.1;
+L_n = 0.1;
 % Case 02:
 y02 = zeros(size(Tm));
 for i = 1:numel(Tm)
     tm = Tm(i);
-    T = @(z) tm .* exp(-chi .*(z).^2);
+    T = @(z) tm - alpha .* (z).^2;
     profile = compute_fsh(T, L_0, L_n, v_f, v_d, lambda_0);
     y02(i) = profile.fsh;
 end
 
 % Define the directory and file name
-save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Shape preservation and stress relaxation\matlab calculation\data\excel";
+save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Preservation & residual stress\matlab calculation\data\excel";
 tstr = datestr(now, 'yyyymmdd_HHMMSS');
 % Base name, modify if needed
 basename = 'results-fsh-Tm';

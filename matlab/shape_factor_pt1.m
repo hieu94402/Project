@@ -70,7 +70,7 @@ y08 = profile.T(z);
 x08 = z;
 
 % Define the directory and file name
-save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Shape preservation and stress relaxation\matlab calculation\data\excel";
+save_dir = "C:\Users\hieu9\OneDrive\Máy tính\One\[Project] Preservation & residual stress\matlab calculation\data\excel";
 tstr = datestr(now, 'yyyymmdd_HHMMSS');
 % Base name, modify if needed
 basename = 'results-T';
