@@ -105,14 +105,13 @@ plt.plot(z, y0_values, color='C1', label='fast heating, slow quenching')
 
 
 # plt.title("unknown title")
-# plt.legend()
 plt.xlabel("z coordinate (m)")
 plt.ylabel("unknown")
 plt.legend()
 plt.show() 
-# # save to .csv file
-# data = np.column_stack(cols)
-# timestamp = datetime.now().strftime("%y%m%d-%H%M%S")
-# filename = f'C:\\Users\\hieu9\\OneDrive\\Máy tính\\One\\[Project] Preservation & residual stress\\python calculation\\data\\excel\\~file~name'
-# np.savetxt(filename, data, delimiter=',')
-# print(f"Saved to: {filename}\n")
+# save to .csv file
+data = np.column_stack(cols)
+timestamp = datetime.now().strftime("%y%m%d-%H%M%S")
+filename = f'C:\\Users\\hieu9\\OneDrive\\Máy tính\\One\\[Project] Preservation & residual stress\\python calculation\\data\\excel\\{timestamp}.csv'
+np.savetxt(filename, data, delimiter=',')
+print(f"Saved to: {filename}\n")
