@@ -15,18 +15,6 @@ v_d = 1000/6 # drawing speed, mm/s
 lambda_0 = 200 # initial periodicity, μm
 alpha = 14300 # temp profile parameter formula 0
 
-# preset plot
-plt.figure(figsize=(8,5))
-plt.grid(True)
-plt.xlabel("z coordinate (m)")
-mpl.rcParams['lines.marker'] = 'o'
-mpl.rcParams['lines.markersize'] = 1
-mpl.rcParams['lines.linestyle'] = '-'
-
-# initiate .csv struc.
-cols = []
-
-
 # def _T(z): # temperature profile
 def _eta(z): # viscosity profile
     return np.exp(22493 / (_T(z) + 273.15) - 35.287)
@@ -56,8 +44,6 @@ def shape_factor():
     fs = simpson(integrand_vals, x=z)
     return np.exp(fs)
 
-# select ouput object
-# case0:
 T_max = 170
 L1 = -0.1
 L2 = 0.5
@@ -69,46 +55,39 @@ def _T(z): # temperature profile
         T_max - alpha * z **2,
         T_max * np.exp(- chi * z ** 2))
     return y_piecewise
-y = np.vectorize( _v )
-y_values = y(z)
-cols.append(z)
-cols.append(y(z))
-# get shape factor value
-fsh = shape_factor()
-print(f"Shape factor fsh = {fsh:.6e}\n")
-# set plot-figure
-plt.plot(z, y_values, color='C0', label='fast heating, slow quenching')
+y = np.vectorize( _T )
+T_values = _T(z)
+# reshape to (1, N) for imshow — a single-row 2D array
+T_strip = T_values.reshape(1, -1)
 
-# case1:
-L1 = -0.5
-L2 = 0.1
-z = np.linspace(L1, L2, 1000) # define horizontal coor.
-def _T(z): # temperature profile
-    y_piecewise = np.where(
-        z > 0, 
-        T_max - alpha * z **2,
-        T_max * np.exp(- chi * z ** 2))
-    return y_piecewise
-y = np.vectorize( _v )
-y_values = y(z)
-cols.append(z)
-cols.append(y(z))
-# get shape factor value
-fsh = shape_factor()
-print(f"Shape factor fsh = {fsh:.6e}\n")
-# set plot-figure
-plt.plot(z, y_values, color='C1', label='slow heating, fast quenching')
+fig, axes = plt.subplots(
+    nrows=2, ncols=1,
+    figsize=(10, 3),
+    gridspec_kw={'height_ratios': [1, 0.15]},  # main heatmap + thin colorbar row
+    constrained_layout=True
+)
+# --- main heatmap strip ---
+im = axes[0].imshow(
+    T_strip,
+    aspect='auto',
+    cmap='RdYlBu_r',          # change to 'plasma', 'hot', 'RdYlBu_r', etc.
+    extent=[L1, L2, 0, 1],  # [x_min, x_max, y_min, y_max]
+    origin='lower'
+)
 
+# overlay a line showing exact T profile for reference (optional)
+ax2 = axes[0].twinx()
+ax2.plot(z, T_values, color='white', linewidth=1, linestyle='--', alpha=0.6, label='T(z)')
+ax2.set_ylabel("Temperature (°C)", color='white')
+ax2.tick_params(axis='y', colors='white')
+ax2.yaxis.label.set_color('white')
 
-# plt.title("unknown title")
-plt.xlabel("z coordinate (m)")
-plt.ylabel("unknown")
-plt.legend()
-plt.show() 
+axes[0].set_xlabel("z coordinate (m)")
+axes[0].set_yticks([])          # hide y-axis ticks on heatmap
+axes[0].set_title("Temperature Profile — Heatmap")
 
-# # save to .csv file
-# data = np.column_stack(cols)
-# timestamp = datetime.now().strftime("%y%m%d-%H%M%S")
-# filename = f'C:\\Users\\hieu9\\OneDrive\\Máy tính\\One\\[Project] Preservation & residual stress\\python calculation\\data\\excel\\{timestamp}.csv'
-# np.savetxt(filename, data, delimiter=',')
-# print(f"Saved to: {filename}\n")
+# --- colorbar below ---
+cbar = fig.colorbar(im, cax=axes[1], orientation='horizontal')
+cbar.set_label("Temperature (°C)")
+
+plt.show()
